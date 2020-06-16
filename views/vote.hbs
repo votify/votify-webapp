@@ -1,0 +1,48 @@
+<div class="container-fluid rounded-sm border border-light shadow bg-white">
+    <div class="px-5 py-5">
+        <h2 class="mb-5 text-center">Cuộc bầu cử</h2>
+        <div class="container">
+            <div class="col justify-content-md-center">
+                <form>
+                    <div class="card">
+                        <div class="card-body">
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="lastName">Họ</label>
+                                    <input type="text" class="form-control" id="lastName" required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="firstName">Tên</label>
+                                    <input type="text" class="form-control" id="firstName" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="idnumber">Chứng minh nhân dân</label>
+                                <input type="text" class="form-control" id="idnumber" required>
+                            </div>
+
+                            <label for="votefor">Bầu ứng cử viên:</label>
+                            <select id="votefor" class="custom-select custom-select-sm">
+                                <option>1.	Nguyễn Văn A</option>
+                                <option>2.	Trần Minh B</option>
+                                <option>3.	Trịnh Thị C</option>
+                            </select>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary mt-5">Xác nhận bầu cử</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+
+    })
+</script>

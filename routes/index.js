@@ -21,4 +21,18 @@ router.post("/check-register", (req, res) => {
   res.render("check-register", { layout: "layout" });
 });
 
+router.get("/votelist", (req, res) => {
+  res.render("votelist", { layout: "layout" });
+});
+
+router.get("/votelist/:id", (req, res) => {
+  const id = req.params['id'];
+  res.render("vote", { layout: "layout" });
+});
+
+router.post("/votelist/:id", (req, res) => {
+  const id = req.params['id'];
+  res.render("vote", { layout: "layout" });
+});
+
 module.exports = router;

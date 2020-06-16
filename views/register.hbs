@@ -60,27 +60,55 @@
     </div>
 </div>
 
+
 <script>
     $(function () {
         // check form validation
-        var options;
-        for (i = 1, options = `<option>Tháng</option>`; i < 13; i++) {
-            options += `<option>${i}</option>`;
+        var options, birthmonth, birthday, birthyear;
+        for (i = 1, options = `<option  value=0>Tháng</option>`; i < 13; i++) {
+            options += `<option value=${i}>${i}</option>`;
         }
         $('#birthmonth').html(options);
 
-        for (i = 1, options = `<option>Ngày</option>`; i < 32; i++) {
-            options += `<option>${i}</option>`;
+
+        for (i = 1, options = `<option value=0>Ngày</option>`; i < 32; i++) {
+            options += `<option value=${i}>${i}</option>`;
         }
         $('#birthday').html(options);
 
-        for (i = 1920, options = `<option>Năm</option>`; i < 2120; i++) {
-            options += `<option>${i}</option>`;
+        for (i = 1920, options = `<option value=0>Năm</option>`; i < 2120; i++) {
+            options += `<option value=${i}>${i}</option>`;
         }
         $('#birthyear').html(options);
 
+        $('button[type=submit]').click(function () {
+            birthday = $('#birthday option:selected').text();
+            birthmonth = $('#birthmonth option:selected').text();
+            birthyear = $('#birthyear option:selected').text();
+            const data = {
+                idnumber: $("#idnumber").val(),
+                fullname: `${$("#lastName").val()}  ${$("#firstName").val()}`,
+                birthday,
+                birthmonth,
+                birthyear
+            }
+            alert(JSON.stringify(data, null, 4));
 
-        // POST form
-        
+
+            // POST form
+            $.ajax({
+                url: '/register',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                timeout: 10000,
+                data: JSON.stringify(data),
+                success: function (data) {
+                    alert(data.msg)
+                },
+                error: function (err) { alert(err) }
+            });
+        })
     })
+
 </script>

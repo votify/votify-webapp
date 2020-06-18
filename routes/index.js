@@ -125,7 +125,7 @@ router.get("/votelist/:id", function (req, res, next) {
       });
 });
 
-router.post("/votelist/:id", (req, res) => {
+router.post("/votelist/:id", async (req, res) => {
   const id = req.params['id'];
   res.render("vote", { layout: "layout" });
 
@@ -144,7 +144,7 @@ router.post("/votelist/:id", (req, res) => {
   };
 
   const url = "https://blockchain-node-01.herokuapp.com/";
-  axios
+  await axios
   .post(url, _data)
   .then((result) => {
     console.log("result", result);

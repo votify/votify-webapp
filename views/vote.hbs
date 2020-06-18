@@ -35,9 +35,11 @@
 
                             <label for="nominee">Bầu ứng cử viên:</label>
                             <select id="nominee" class="custom-select custom-select-sm">
-                                <option>1.	Nguyễn Văn A</option>
-                                <option>2.	Trần Minh B</option>
-                                <option>3.	Trịnh Thị C</option>
+                                {{#each elections}}
+                                    {{#each this.nominees}}
+                                        <option>{{this}}</option>
+                                    {{/each}}
+                                {{/each}}
                             </select>
 
                             <div class="text-center">

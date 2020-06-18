@@ -1,4 +1,5 @@
 var express = require("express");
+const { response } = require("express");
 var router = express.Router();
 
 /* GET home page. */
@@ -21,20 +22,59 @@ router.post("/check-register", (req, res) => {
   res.render("check-register", { layout: "layout" });
 });
 
-router.get("/votelist", (req, res) => {
-  res.render("votelist", { layout: "layout" });
-
-  const year = req.params['year'];
-  const nameOfElection = req.params['name'];
+router.get("/votelist", function (req, res, next) {
+  fetch("https://blockchain-node-01.herokuapp.com/elections",{
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      for (let index = 0; index < data.length; index++)
+      {
+        data[index].deadline = moment(data[index].deadline).format(
+          "MMM Do, YYYY"
+        );
+      }
+      res.render("votelist", {
+         layout: "layout",
+         title = "Election List",
+         elections: data,
+        });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        next(error);
+      });
 });
 
-router.get("/votelist/:id", (req, res) => {
+router.get("/votelist/:id", function (req, res, next) {
   const id = req.params['id'];
-  res.render("vote", { layout: "layout" });
-
-  const year = req.params['year'];
-  const nameOfElection = req.params['name'];
-  const nominee = req.params['nominee'];
+  fetch("https://blockchain-node-01.herokuapp.com/elections",{
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      for (let index = 0; index < data.length; index++)
+      {
+        data[index].deadline = moment(data[index].deadline).format(
+          "MMM Do, YYYY"
+        );
+      }
+      res.render("vote", {
+         layout: "layout",
+         title = "Election List",
+         elections: data,
+        });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        next(error);
+      });
 });
 
 router.post("/votelist/:id", (req, res) => {
@@ -47,14 +87,12 @@ router.post("/votelist/:id", (req, res) => {
 
   const convertedPrivKey = Buffer.from(privKey, 'utf8');
 
-  const pubKey = secp256k1.publicKeyCreate(convertedPrivKey);
-
   const signObj = secp256k1.ecdsaSign(msg, convertedPrivKey)
 
   const _data = {
+    type:"vote",
     data: { year: year, name: name, nominee: nominee },
     signature: signObj,
-    address: pubKey,
   };
 
   const url = "https://blockchain-node-01.herokuapp.com/";

@@ -1,6 +1,6 @@
 <div class="container-fluid rounded-sm border border-light shadow bg-white">
     <div class="px-5 py-5">
-        <h2 class="mb-5 text-center">Cuộc bầu cử</h2>
+        <h2 class="mb-5 text-center" id="nameOfElection">Cuộc bầu cử</h2>
         <div class="container">
             <div class="col justify-content-md-center">
                 <form>
@@ -10,21 +10,31 @@
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="lastName">Họ</label>
-                                    <input type="text" class="form-control" id="lastName" required>
+                                    <input type="text" class="form-control" id="lastName">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="firstName">Tên</label>
-                                    <input type="text" class="form-control" id="firstName" required>
+                                    <input type="text" class="form-control" id="firstName">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label for="idnumber">Chứng minh nhân dân</label>
-                                <input type="text" class="form-control" id="idnumber" required>
+                                <input type="text" class="form-control" id="idnumber">
                             </div>
 
-                            <label for="votefor">Bầu ứng cử viên:</label>
-                            <select id="votefor" class="custom-select custom-select-sm">
+                            <div class="form-group">
+                                <label for="year">Năm bầu cử</label>
+                                <input type="text" class="form-control" id="year" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="privKey">Khóa bí mật</label>
+                                <input type="password" class="form-control" id="privKey" required>
+                            </div>
+
+                            <label for="nominee">Bầu ứng cử viên:</label>
+                            <select id="nominee" class="custom-select custom-select-sm">
                                 <option>1.	Nguyễn Văn A</option>
                                 <option>2.	Trần Minh B</option>
                                 <option>3.	Trịnh Thị C</option>
@@ -43,6 +53,28 @@
 
 <script>
     $(function () {
+        $('button[type=submit]').click(function () {
+            const data = {
+                year: $("#year").val(),
+                name: $("#nameOfElection").val(),
+                nominee: $("#nominee").val(),
+                privKey: $("#privKey").val(),
+            }
+            alert(JSON.stringify(data, null, 4));
 
-    })
+            // POST form
+            $.ajax({
+                url: '/vote',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                timeout: 10000,
+                data: JSON.stringify(data),
+                success: function (data) {
+                    alert(data.msg)
+                },
+                error: function (err) { alert(err) }
+            });
+        })
+    })    
 </script>

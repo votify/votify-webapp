@@ -25,7 +25,7 @@
 
                             <div class="form-group">
                                 <label for="year">Năm bầu cử</label>
-                                <input type="text" class="form-control" id="year" required>
+                                <input type="text" class="form-control" id="year" readonly value="{{year}}">
                             </div>
 
                             <div class="form-group">
@@ -35,10 +35,8 @@
 
                             <label for="nominee">Bầu ứng cử viên:</label>
                             <select id="nominee" class="custom-select custom-select-sm">
-                                {{#each elections}}
-                                    {{#each this.nominees}}
-                                        <option>{{this}}</option>
-                                    {{/each}}
+                                {{#each this.nominees}}
+                                    <option value={{this}}>{{this}}</option>
                                 {{/each}}
                             </select>
 

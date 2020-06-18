@@ -1,4 +1,6 @@
 var express = require("express");
+var fetch = require("node-fetch");
+const axios = require("axios");
 const { response } = require("express");
 var router = express.Router();
 
@@ -38,8 +40,8 @@ router.get("/votelist", function (req, res, next) {
         );
       }
       res.render("votelist", {
+         title: "Election List",
          layout: "layout",
-         title = "Election List",
          elections: data,
         });
       })
@@ -66,8 +68,8 @@ router.get("/votelist/:id", function (req, res, next) {
         );
       }
       res.render("vote", {
+         title: "Election List",
          layout: "layout",
-         title = "Election List",
          elections: data,
         });
       })
@@ -96,18 +98,17 @@ router.post("/votelist/:id", (req, res) => {
   };
 
   const url = "https://blockchain-node-01.herokuapp.com/";
-  await axios
-    .post(url, { _data })
-    .then((result) => {
-      res.status(result.status).json(result, convertedPrivKey);
-    })
-    .catch((err) => {
-      res.status(200).json(err);
-    });
+  axios
+  .post(url, _data)
+  .then((result) => {
+    console.log("result", result);
+    res.status(200).json({ success: true }, result, convertedPrivKey);
+  })
+  .catch((err) => {
+    res.status(err.response.status).json(err.response.statusText);
+  });
 
   console.log(hash);
-
-  a;
   res.status(200).json({ msg: "success" });
   
 });

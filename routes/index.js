@@ -2,8 +2,11 @@ var express = require("express");
 const secp256k1 = require("secp256k1");
 const crypto = require("crypto");
 const axios = require("axios");
+const createError = require("http-errors");
 var router = express.Router();
 
+const { server } = require("../config/config.json");
+const { baseURL } = server;
 /* GET home page. */
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
@@ -19,12 +22,19 @@ router.post("/register", async (req, res) => {
   const data = { ...req.body };
   const { idnumber, fullname, birthday, birthmonth, birthyear } = data;
 
-  const privKey = crypto
+  const hash = crypto
     .createHash("sha256")
-    .update(JSON.stringify(data))
-    .digest("hex");
+    .update(JSON.stringify(JSON.stringify(data)))
+    .digest();
+
+  let privKey;
+  do {
+    privKey = hash;
+  } while (!secp256k1.privateKeyVerify(privKey));
+  console.log("privKey", privKey);
 
   const pubKey = secp256k1.publicKeyCreate(privKey);
+  console.log("pubKey", pubKey);
 
   const dob = new Date(birthyear, birthmonth, birthday);
   const _data = {
@@ -33,20 +43,21 @@ router.post("/register", async (req, res) => {
     signature: null,
     lock: null,
   };
-  const url = "https://blockchain-node-01.herokuapp.com/";
+  console.log(_data);
+  const url = `${baseURL}/action`;
+  console.log("baseURL", baseURL);
   await axios
-    .post(url, { _data })
+    .post(url, _data)
     .then((result) => {
-      res.status(result.status).json(result, privKey);
+      console.log("result", result);
+      res.status(200).json({ success: true }, result, privKey);
     })
     .catch((err) => {
-      res.status(200).json(err);
+      // throw err;
+      // console.log(err);
+      // throw new createError(err.response.status, err.response.statusText);
+      res.status(err.response.status).json(err.response.statusText);
     });
-
-  console.log(hash);
-
-  a;
-  res.status(200).json({ msg: "success" });
 });
 
 router.get("/check-register", (req, res) => {

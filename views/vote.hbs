@@ -33,8 +33,8 @@
                                 <input type="password" class="form-control" id="privKey" required>
                             </div>
 
-                            <label for="nominee">Bầu ứng cử viên:</label>
-                            <select id="nominee" class="custom-select custom-select-sm">
+                            <label for="nominees">Bầu ứng cử viên:</label>
+                            <select id="nominees" class="custom-select custom-select-sm">
                                 {{#each this.nominees}}
                                     <option value={{this}}>{{this}}</option>
                                 {{/each}}
@@ -57,7 +57,7 @@
             const data = {
                 year: $("#year").val(),
                 name: $("#nameOfElection").val(),
-                nominee: $("#nominee").val(),
+                nominees: $("#nominees").val(),
                 privKey: $("#privKey").val(),
             }
             alert(JSON.stringify(data, null, 4));

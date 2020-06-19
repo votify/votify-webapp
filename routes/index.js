@@ -136,12 +136,12 @@ router.post("/votelist/:id", async (req, res) => {
 
   const convertedPrivKey = Buffer.from(privKey, 'utf8');
 
-  const signObj = secp256k1.ecdsaSign(msg, convertedPrivKey)
+  const signatureObj = secp256k1.ecdsaSign(msg, convertedPrivKey)
 
   const _data = {
     type: "vote",
     data: { year: year, name: name, nominee: nominee },
-    signature: signObj,
+    signature: [...signatureObj],
   };
 
   const url = "https://blockchain-node-01.herokuapp.com/";

@@ -11,7 +11,7 @@
                         <div class="card-body">
                             <h5 class="card-title">Các ứng cử viên:</h5>
                             {{#each this.nominees}}
-                                <p class="card-text">{{this}}</p>
+                                <p class="card-text">- {{this}}</p>
                             {{/each}}
                             <p class="card-text">Deadline: {{this.deadline}}</p>
                             <a href="/votelist/{{id}}" class="btn btn-primary">Thực hiện bầu cử</a>

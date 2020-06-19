@@ -144,7 +144,13 @@
                     console.log(JSON.stringify(data, null, 4));
                 },
                 error: function (err) {
-                    $("#modal_place").html(modal('Lỗi', err, null));
+                    const { address } = err.responseJSON;
+                    const content = `Cử tri đã đăng ký với
+                    <b>ID:<b> <code>${address}</code>`;
+                    const continue_button = `
+                    <a href="./votelist" class="btn btn-primary active" role="button" aria-pressed="true">Tiếp tục bầu <img src="/images/arrow-right.svg" width="30" height="30" class="d-inline-block align-top"></a>`
+                    
+                    $("#modal_place").html(modal('Thông báo', content, continue_button));
                     $("#modal").modal('show');
                     console.log(JSON.stringify(err, null, 4));
 

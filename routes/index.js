@@ -22,6 +22,14 @@ router.post("/register", async (req, res) => {
 
   const { privKey, pubKey, _privKey, _pubKey, hash } = generateKeyPair(data);
 
+  const checkRegisteration = await didUserExist(_pubKey);
+  console.log('checkRegisteration', checkRegisteration)
+
+  if (checkRegisteration.address !== false) {
+    return res.status(400).json(checkRegisteration)
+  }
+
+
   console.log("privKey", privKey);
   console.log("pubKey", pubKey);
   console.log('_privKey', _privKey);
@@ -61,13 +69,11 @@ router.post("/check-register", async (req, res) => {
   const checkRegisteration = await didUserExist(_pubKey);
   console.log('checkRegisteration', checkRegisteration)
 
-  if(checkRegisteration.address === false){
+  if (checkRegisteration.address === false) {
     res.status(400).json(checkRegisteration)
   }
   res.status(200).json(checkRegisteration)
 });
-
-
 
 module.exports = router;
 

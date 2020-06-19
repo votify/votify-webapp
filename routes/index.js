@@ -22,7 +22,7 @@ router.post("/register", async (req, res) => {
   const data = { ...req.body };
   const { idnumber, fullname, birthday, birthmonth, birthyear } = data;
 
-  const hash = crypto
+  /* const hash = crypto
     .createHash("sha256")
     .update(JSON.stringify(JSON.stringify(data)))
     .digest();
@@ -43,7 +43,39 @@ router.post("/register", async (req, res) => {
     signature: null,
     lock: null,
   };
-  console.log(_data);
+  console.log(_data); */
+
+
+  const buffer = crypto
+    .createHash("sha256")
+    .update(JSON.stringify(JSON.stringify(data)))
+    .digest();
+  console.log('buffer', buffer)
+  const hash = new Uint8Array(
+    buffer.buffer,
+    buffer.byteOffset,
+    buffer.length / Uint8Array.BYTES_PER_ELEMENT
+  );
+
+  console.log(hash);
+
+  let privKey;
+  do {
+    privKey = hash;
+  } while (!secp256k1.privateKeyVerify(privKey));
+  console.log("privKey", privKey);
+
+  const pubKey = secp256k1.publicKeyCreate(privKey);
+  console.log("pubKey", pubKey);
+
+  const dob = new Date(birthyear, birthmonth, birthday);
+  const _data = {
+    type: "users",
+    data: { id: idnumber, name: fullname, dob: dob, pubKey: [...pubKey] },
+    signature: null,
+    lock: null,
+  };
+
   const url = `${baseURL}/action`;
   console.log("baseURL", baseURL);
   await axios

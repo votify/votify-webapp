@@ -82,9 +82,9 @@
         }
         $('#birthyear').html(options);
 
-        const modal = (title, content) =>
+        const modal = (title, content, continue_button) =>
             `<div class="modal fade" tabindex="-1" role="dialog" id="modal">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">${title}</h5>
@@ -96,8 +96,8 @@
                         <p>${content}</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                        ${continue_button}
                     </div>
                 </div>
             </div>
@@ -130,17 +130,26 @@
                 async: false,
                 data: JSON.stringify(data),
                 success: function (data) {
-                    $("#modal_place").html(modal('Store your private key', data.privKey));
+                    const title = `ID và Khóa bí mật`;
+                    const content = `In, sao chép ID và Khóa bí mật dưới đây <hr>
+                    <ul>
+                    <li><b>ID:</b> <code>${data.id}</code></li>
+                    <li><b>Khóa bí mật:</b> <code>${data._privKey}</code></li>
+                    </ul>
+                    `;
+                    const continue_button = `
+                    <a href="./votelist" class="btn btn-primary active" role="button" aria-pressed="true">Tiếp tục bầu <img src="/images/arrow-right.svg" width="30" height="30" class="d-inline-block align-top"></a>`
+                    $("#modal_place").html(modal(title, content, continue_button));
+                    $("#modal").modal('show');
                     console.log(JSON.stringify(data, null, 4));
                 },
                 error: function (err) {
-                    //alert(JSON.stringify(err, null, 4));
-                    $("#modal_place").html(modal('Error', err));
+                    $("#modal_place").html(modal('Lỗi', err, null));
+                    $("#modal").modal('show');
                     console.log(JSON.stringify(err, null, 4));
 
                 }
             })
-            $("#modal").modal('show');
 
         })
 

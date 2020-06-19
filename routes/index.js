@@ -50,12 +50,16 @@ router.post("/register", async (req, res) => {
     .createHash("sha256")
     .update(JSON.stringify(JSON.stringify(data)))
     .digest();
+
   console.log('buffer', buffer)
   const hash = new Uint8Array(
     buffer.buffer,
     buffer.byteOffset,
     buffer.length / Uint8Array.BYTES_PER_ELEMENT
   );
+
+  const _privKey = ArrayToStringHex(buffer);
+  console.log('_privKey', _privKey);
 
   console.log(hash);
 
@@ -81,14 +85,12 @@ router.post("/register", async (req, res) => {
   await axios
     .post(url, _data)
     .then((result) => {
-      console.log("result", result);
-      res.status(200).json({ success: true }, result, privKey);
+      console.log("result: ", result.data);
+      return res.status(200).json({...result.data, _privKey});
     })
     .catch((err) => {
-      // throw err;
-      // console.log(err);
-      // throw new createError(err.response.status, err.response.statusText);
-      res.status(err.response.status).json(err.response.statusText);
+      console.log('err', err)
+      return res.status(400).json(err);
     });
 });
 
@@ -99,5 +101,11 @@ router.get("/check-register", (req, res) => {
 router.post("/check-register", (req, res) => {
   res.render("check-register", { layout: "layout" });
 });
+
+const ArrayToStringHex = (array) => {
+  return Array.from(array, function (byte) {
+    return ("0" + (byte & 0xff).toString(16)).slice(-2);
+  }).join("");
+};
 
 module.exports = router;

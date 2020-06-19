@@ -22,10 +22,16 @@ router.post("/register", async (req, res) => {
   const data = { ...req.body };
   const { idnumber, fullname, birthday, birthmonth, birthyear } = data;
 
-  const hash = crypto
+  const buffer = crypto
     .createHash("sha256")
     .update(JSON.stringify(JSON.stringify(data)))
     .digest();
+
+  const hash = new Uint8Array(
+    buffer.buffer,
+    buffer.byteOffset,
+    buffer.length / Uint8Array.BYTES_PER_ELEMENT
+  );
 
   let privKey;
   do {
@@ -39,7 +45,7 @@ router.post("/register", async (req, res) => {
   const dob = new Date(birthyear, birthmonth, birthday);
   const _data = {
     type: "users",
-    data: { id: idnumber, name: fullname, dob: dob, pubKey },
+    data: { id: idnumber, name: fullname, dob: dob, pubKey: [...pubKey] },
     signature: null,
     lock: null,
   };

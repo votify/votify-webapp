@@ -16,6 +16,7 @@
     "hbs": "^4.1.1",
     "http-errors": "~1.6.3",
     "https-error": "^1.0.2",
+    "moment": "^2.27.0",
     "morgan": "~1.9.1",
     "node-fetch": "^2.6.0",
     "secp256k1": "^4.0.1"

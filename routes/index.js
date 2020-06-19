@@ -6,6 +6,8 @@ const secp256k1 = require("secp256k1");
 const crypto = require("crypto");
 const createError = require("http-errors");
 var router = express.Router();
+const moment = require('moment');
+
 
 const { server } = require("../config/config.json");
 const { baseURL } = server;
@@ -71,7 +73,7 @@ router.post("/check-register", (req, res) => {
 });
 
 router.get("/votelist", function (req, res, next) {
-  fetch("https://blockchain-node-01.herokuapp.com/elections",{
+  fetch("https://blockchain-node-01.herokuapp.com/elections", {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -79,27 +81,26 @@ router.get("/votelist", function (req, res, next) {
   })
     .then((response) => response.json())
     .then((data) => {
-      for (let index = 0; index < data.length; index++)
-      {
+      for (let index = 0; index < data.length; index++) {
         data[index].deadline = moment(data[index].deadline).format(
           "MMM Do, YYYY"
         );
       }
       res.render("votelist", {
-         title: "Election List",
-         layout: "layout",
-         elections: data,
-        });
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        next(error);
+        title: "Election List",
+        layout: "layout",
+        elections: data,
       });
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      next(error);
+    });
 });
 
 router.get("/votelist/:id", function (req, res, next) {
   const id = req.params['id'];
-  fetch("https://blockchain-node-01.herokuapp.com/elections",{
+  fetch("https://blockchain-node-01.herokuapp.com/elections", {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -107,22 +108,22 @@ router.get("/votelist/:id", function (req, res, next) {
   })
     .then((response) => response.json())
     .then((data) => {
-      for (let index = 0; index < data.length; index++)
-      {
+      for (let index = 0; index < data.length; index++) {
         data[index].deadline = moment(data[index].deadline).format(
           "MMM Do, YYYY"
         );
       }
+      console.log('data', data)
       res.render("vote", {
-         title: "Election List",
-         layout: "layout",
-         elections: data,
-        });
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        next(error);
+        title: "Election List",
+        layout: "layout",
+        elections: data[0],
       });
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      next(error);
+    });
 });
 
 router.post("/votelist/:id", async (req, res) => {
@@ -138,25 +139,25 @@ router.post("/votelist/:id", async (req, res) => {
   const signObj = secp256k1.ecdsaSign(msg, convertedPrivKey)
 
   const _data = {
-    type:"vote",
+    type: "vote",
     data: { year: year, name: name, nominee: nominee },
     signature: signObj,
   };
 
   const url = "https://blockchain-node-01.herokuapp.com/";
   await axios
-  .post(url, _data)
-  .then((result) => {
-    console.log("result", result);
-    res.status(200).json({ success: true }, result, convertedPrivKey);
-  })
-  .catch((err) => {
-    res.status(err.response.status).json(err.response.statusText);
-  });
+    .post(url, _data)
+    .then((result) => {
+      console.log("result", result);
+      res.status(200).json({ success: true }, result, convertedPrivKey);
+    })
+    .catch((err) => {
+      res.status(err.response.status).json(err.response.statusText);
+    });
 
   console.log(hash);
   res.status(200).json({ msg: "success" });
-  
+
 });
 
 module.exports = router;

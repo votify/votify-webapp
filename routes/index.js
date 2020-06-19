@@ -105,7 +105,7 @@ const generateKeyPair = (data) => {
     privKey = hash;
   } while (!secp256k1.privateKeyVerify(privKey));
 
-  const pubKey = secp256k1.publicKeyCreate(privKey);
+  const pubKey = [...secp256k1.publicKeyCreate(privKey)];
 
   const _privKey = ArrayToStringHex(buffer);
   const _pubKey = ArrayToStringHex(pubKey);

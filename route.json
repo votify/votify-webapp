@@ -1,5 +1,4 @@
 {
-  // register
   "/action": {
     "method": "POST",
     "inputs": [
@@ -9,7 +8,7 @@
           "id": "string",
           "name": "string",
           "dob": "Date",
-          "pubKey": "Uint8Array"
+          "pubKey": "number[]"
         },
         "signature": "null",
         "lock": "null"
@@ -21,7 +20,7 @@
           "name": "string",
           "nominee": "string"
         },
-        "signature": "Uint8Array",
+        "signature": "number[]",
         "lock": "string"
       }
     ],
@@ -49,7 +48,12 @@
   },
   "/check/:address": {
     "method": "GET",
-    "outputs": [{ "result": "true" }, { "result": "false" }]
+    "outputs": [{ "result": "true" }, { "result": "false" }],
+    "Lưu Ý": "address la action id"
+  },
+  "/address/:pubKey": {
+    "method": "GET",
+    "outputs": [{ "result": "string" }, { "result": "false" }]
   },
   "/count": {
     "method": "POST",
@@ -63,9 +67,18 @@
       },
       {
         "result": {
-          "nominee1-name": "number",
-          "nominee2-name": "number",
-          "UnCount": "number"
+          "nominee1-name": {
+            "name": "string",
+            "count": "number"
+          },
+          "nominee2-name": {
+            "name": "string",
+            "count": "number"
+          },
+          "UnCount": {
+            "name": "string",
+            "count": "number"
+          }
         }
       }
     ]

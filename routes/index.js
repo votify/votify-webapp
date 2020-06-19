@@ -17,60 +17,16 @@ router.get("/register", (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
-  // const {type, data, signature, lock} // (hash) public + cmnd + ten +ngay thang nam sinh
-  // const { data } = req.body;
   const data = { ...req.body };
   const { idnumber, fullname, birthday, birthmonth, birthyear } = data;
 
-  /* const hash = crypto
-    .createHash("sha256")
-    .update(JSON.stringify(JSON.stringify(data)))
-    .digest();
+  const { privKey, pubKey, _privKey, _pubKey, hash } = generateKeyPair(data);
 
-  let privKey;
-  do {
-    privKey = hash;
-  } while (!secp256k1.privateKeyVerify(privKey));
   console.log("privKey", privKey);
-
-  const pubKey = secp256k1.publicKeyCreate(privKey);
   console.log("pubKey", pubKey);
-
-  const dob = new Date(birthyear, birthmonth, birthday);
-  const _data = {
-    type: "users",
-    data: { id: idnumber, name: fullname, dob: dob, pubKey },
-    signature: null,
-    lock: null,
-  };
-  console.log(_data); */
-
-
-  const buffer = crypto
-    .createHash("sha256")
-    .update(JSON.stringify(JSON.stringify(data)))
-    .digest();
-
-  console.log('buffer', buffer)
-  const hash = new Uint8Array(
-    buffer.buffer,
-    buffer.byteOffset,
-    buffer.length / Uint8Array.BYTES_PER_ELEMENT
-  );
-
-  const _privKey = ArrayToStringHex(buffer);
   console.log('_privKey', _privKey);
-
+  console.log('_pubKey', _pubKey);
   console.log(hash);
-
-  let privKey;
-  do {
-    privKey = hash;
-  } while (!secp256k1.privateKeyVerify(privKey));
-  console.log("privKey", privKey);
-
-  const pubKey = secp256k1.publicKeyCreate(privKey);
-  console.log("pubKey", pubKey);
 
   const dob = new Date(birthyear, birthmonth, birthday);
   const _data = {
@@ -81,12 +37,11 @@ router.post("/register", async (req, res) => {
   };
 
   const url = `${baseURL}/action`;
-  console.log("baseURL", baseURL);
   await axios
     .post(url, _data)
     .then((result) => {
       console.log("result: ", result.data);
-      return res.status(200).json({...result.data, _privKey});
+      return res.status(200).json({ ...result.data, _privKey });
     })
     .catch((err) => {
       console.log('err', err)
@@ -98,9 +53,25 @@ router.get("/check-register", (req, res) => {
   res.render("check-register", { layout: "layout" });
 });
 
-router.post("/check-register", (req, res) => {
-  res.render("check-register", { layout: "layout" });
+router.post("/check-register", async (req, res) => {
+  const data = { ...req.body };
+  const { idnumber, fullname, birthday, birthmonth, birthyear } = data;
+
+  const { privKey, pubKey, _privKey, _pubKey, hash } = generateKeyPair(data);
+  const checkRegisteration = await didUserExist(_pubKey);
+  console.log('checkRegisteration', checkRegisteration)
+
+  if(checkRegisteration.address === false){
+    res.status(400).json(checkRegisteration)
+  }
+  res.status(200).json(checkRegisteration)
 });
+
+
+
+module.exports = router;
+
+//////////////////////////////////////////
 
 const ArrayToStringHex = (array) => {
   return Array.from(array, function (byte) {
@@ -108,4 +79,32 @@ const ArrayToStringHex = (array) => {
   }).join("");
 };
 
-module.exports = router;
+const generateKeyPair = (data) => {
+  const buffer = crypto
+    .createHash("sha256")
+    .update(JSON.stringify(JSON.stringify(data)))
+    .digest();
+
+  console.log('buffer', buffer);
+  const hash = new Uint8Array(
+    buffer.buffer,
+    buffer.byteOffset,
+    buffer.length / Uint8Array.BYTES_PER_ELEMENT
+  );
+
+
+  let privKey;
+  do {
+    privKey = hash;
+  } while (!secp256k1.privateKeyVerify(privKey));
+
+  const pubKey = secp256k1.publicKeyCreate(privKey);
+
+  const _privKey = ArrayToStringHex(buffer);
+  const _pubKey = ArrayToStringHex(pubKey);
+  return { privKey, pubKey, _privKey, _pubKey, hash };
+}
+
+async function didUserExist(_pubKey) {
+  return await axios.get(`${baseURL}/address/${_pubKey}`).then((result) => result.data)
+}

@@ -8,7 +8,6 @@ const createError = require("http-errors");
 var router = express.Router();
 const moment = require('moment');
 
-
 const { server } = require("../config/config.json");
 const { baseURL } = server;
 /* GET home page. */
@@ -37,7 +36,7 @@ router.post("/register", async (req, res) => {
   } while (!secp256k1.privateKeyVerify(privKey));
   console.log("privKey", privKey);
 
-  const pubKey = secp256k1.publicKeyCreate(privKey);
+  const pubKey = [...secp256k1.publicKeyCreate(privKey)];
   console.log("pubKey", pubKey);
 
   const dob = new Date(birthyear, birthmonth, birthday);

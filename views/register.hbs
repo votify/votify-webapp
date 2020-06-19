@@ -63,28 +63,23 @@
 
 <script>
     $(function () {
-
         // check form validation
         var options, birthmonth, birthday, birthyear;
         for (i = 1, options = `<option  value=0>Tháng</option>`; i < 13; i++) {
             options += `<option value=${i}>${i}</option>`;
         }
         $('#birthmonth').html(options);
-
-
         for (i = 1, options = `<option value=0>Ngày</option>`; i < 32; i++) {
             options += `<option value=${i}>${i}</option>`;
         }
         $('#birthday').html(options);
-
         for (i = 1920, options = `<option value=0>Năm</option>`; i < 2120; i++) {
             options += `<option value=${i}>${i}</option>`;
         }
         $('#birthyear').html(options);
-
-        const modal = (title, content) =>
+        const modal = (title, content, continue_button) =>
             `<div class="modal fade" tabindex="-1" role="dialog" id="modal">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">${title}</h5>
@@ -96,17 +91,14 @@
                         <p>${content}</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                        ${continue_button}
                     </div>
                 </div>
             </div>
         </div>`
-
-
         $('button[type=submit]').click(function (e) {
             e.preventDefault();
-
             birthday = $('#birthday option:selected').text();
             birthmonth = $('#birthmonth option:selected').text();
             birthyear = $('#birthyear option:selected').text();
@@ -118,8 +110,6 @@
                 birthyear
             }
             alert(JSON.stringify(data, null, 4));
-
-
             // POST form
             $.ajax({
                 url: '/register',
@@ -130,21 +120,31 @@
                 async: false,
                 data: JSON.stringify(data),
                 success: function (data) {
-                    $("#modal_place").html(modal('Store your private key', data.privKey));
+                    const title = `ID và Khóa bí mật`;
+                    const content = `In, sao chép ID và Khóa bí mật dưới đây <hr>
+                    <ul>
+                    <li><b>ID:</b> <code>${data.id}</code></li>
+                    <li><b>Khóa bí mật:</b> <code>${data._privKey}</code></li>
+                    </ul>
+                    `;
+                    const continue_button = `
+                    <a href="./votelist" class="btn btn-primary active" role="button" aria-pressed="true">Tiếp tục bầu <img src="/images/arrow-right.svg" width="30" height="30" class="d-inline-block align-top"></a>`
+                    $("#modal_place").html(modal(title, content, continue_button));
+                    $("#modal").modal('show');
                     console.log(JSON.stringify(data, null, 4));
                 },
                 error: function (err) {
-                    //alert(JSON.stringify(err, null, 4));
-                    $("#modal_place").html(modal('Error', err));
+                    const { address } = err.responseJSON;
+                    const content = `Cử tri đã đăng ký với
+                    <b>ID:<b> <code>${address}</code>`;
+                    const continue_button = `
+                    <a href="./votelist" class="btn btn-primary active" role="button" aria-pressed="true">Tiếp tục bầu <img src="/images/arrow-right.svg" width="30" height="30" class="d-inline-block align-top"></a>`
+                    
+                    $("#modal_place").html(modal('Thông báo', content, continue_button));
+                    $("#modal").modal('show');
                     console.log(JSON.stringify(err, null, 4));
-
                 }
             })
-            $("#modal").modal('show');
-
         })
-
-
     })
-
 </script>

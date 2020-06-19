@@ -20,6 +20,7 @@ router.post("/register", async (req, res) => {
   const data = { ...req.body };
   const { idnumber, fullname, birthday, birthmonth, birthyear } = data;
 
+
   const { privKey, pubKey, _privKey, _pubKey, hash } = generateKeyPair(data);
 
   const checkRegisteration = await didUserExist(_pubKey);

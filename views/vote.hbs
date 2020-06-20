@@ -41,7 +41,7 @@
                             <label for="nominees">Bầu ứng cử viên:</label>
                             <select id="nominees" class="custom-select custom-select-sm">
                                 {{#each elections.nominees}}
-                                    <option value={{this}}>{{this}}</option>
+                                <option value={{this}}>{{this}}</option>
                                 {{/each}}
                             </select>
 
@@ -70,7 +70,7 @@
 
             // POST form
             $.ajax({
-                url: `/votelist/${id}`,
+                url: '/votelist/',
                 type: 'POST',
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
@@ -78,7 +78,7 @@
                 timeout: 10000,
                 data: JSON.stringify(data),
                 success: function (data) {
-                    alert(data.msg)
+                    alert(data)
                 },
                 error: function (err) { alert(err) }
             });

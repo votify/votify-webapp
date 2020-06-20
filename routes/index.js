@@ -6,7 +6,7 @@ const secp256k1 = require("secp256k1");
 const crypto = require("crypto");
 const createError = require("http-errors");
 var router = express.Router();
-const moment = require('moment');
+const moment = require("moment");
 
 const { server } = require("../config/config.json");
 const { baseURL } = server;
@@ -23,21 +23,19 @@ router.post("/register", async (req, res) => {
   const data = { ...req.body };
   const { idnumber, fullname, birthday, birthmonth, birthyear } = data;
 
-
   const { privKey, pubKey, _privKey, _pubKey, hash } = generateKeyPair(data);
 
   const checkRegisteration = await didUserExist(_pubKey);
-  console.log('checkRegisteration', checkRegisteration)
+  console.log("checkRegisteration", checkRegisteration);
 
   if (checkRegisteration.address !== false) {
-    return res.status(400).json(checkRegisteration)
+    return res.status(400).json(checkRegisteration);
   }
-
 
   console.log("privKey", privKey);
   console.log("pubKey", pubKey);
-  console.log('_privKey', _privKey);
-  console.log('_pubKey', _pubKey);
+  console.log("_privKey", _privKey);
+  console.log("_pubKey", _pubKey);
   console.log(hash);
 
   const dob = new Date(birthyear, birthmonth, birthday);
@@ -56,7 +54,7 @@ router.post("/register", async (req, res) => {
       return res.status(200).json({ ...result.data, _privKey });
     })
     .catch((err) => {
-      console.log('err', err)
+      console.log("err", err);
       return res.status(400).json(err);
     });
 });
@@ -71,12 +69,12 @@ router.post("/check-register", async (req, res) => {
 
   const { privKey, pubKey, _privKey, _pubKey, hash } = generateKeyPair(data);
   const checkRegisteration = await didUserExist(_pubKey);
-  console.log('checkRegisteration', checkRegisteration)
+  console.log("checkRegisteration", checkRegisteration);
 
   if (checkRegisteration.address === false) {
-    res.status(400).json(checkRegisteration)
+    res.status(400).json(checkRegisteration);
   }
-  res.status(200).json(checkRegisteration)
+  res.status(200).json(checkRegisteration);
 });
 
 router.get("/votelist", function (req, res, next) {
@@ -100,7 +98,7 @@ router.get("/votelist", function (req, res, next) {
       });
     })
     .catch((err) => {
-      console.log('err', err)
+      console.log("err", err);
       return res.status(400).json(err);
     });
 });
@@ -114,7 +112,7 @@ router.get("/votelist/:id", function (req, res) {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log('data', data)
+      console.log("data", data);
       res.render("vote", {
         title: "Election List",
         layout: "layout",
@@ -122,25 +120,26 @@ router.get("/votelist/:id", function (req, res) {
       });
     })
     .catch((err) => {
-      console.log('err', err)
+      console.log("err", err);
       return res.status(400).json(err);
     });
 });
 
-router.post('/votelist/:id', async (req, res) => {
-
+router.post("/votelist/", async (req, res) => {
   const data = { ...req.body };
 
   const { year, name, nominees, privKey, lock } = data;
 
-  const convertedPrivKey = Buffer.from(privKey, 'utf8');
+  const convertedPrivKey = new Uint8Array(ParseHexString(privKey));
 
-  const signatureObj = secp256k1.ecdsaSign(msg, convertedPrivKey)
+  const msg = JSONToUint8Array({ year, name, nominee: nominees });
+
+  const signatureObj = secp256k1.ecdsaSign(msg, convertedPrivKey);
 
   const _data = {
     type: "vote",
     data: { year: year, name: name, nominee: nominees },
-    signature: [...signatureObj],
+    signature: [...signatureObj.signature],
     lock: lock,
   };
   console.log(_data);
@@ -150,10 +149,14 @@ router.post('/votelist/:id', async (req, res) => {
     .post(url, _data)
     .then((result) => {
       console.log("result", result.data);
-      res.status(200).json({ success: true }, result);
+      if (result.status === "valid") {
+        res.json({ success: true, id: result.id });
+      } else {
+        res.json({ success: false });
+      }
     })
     .catch((err) => {
-      console.log('err', err)
+      console.log("err", err);
       return res.status(400).json(err);
     });
 });
@@ -174,13 +177,12 @@ const generateKeyPair = (data) => {
     .update(JSON.stringify(JSON.stringify(data)))
     .digest();
 
-  console.log('buffer', buffer);
+  console.log("buffer", buffer);
   const hash = new Uint8Array(
     buffer.buffer,
     buffer.byteOffset,
     buffer.length / Uint8Array.BYTES_PER_ELEMENT
   );
-
 
   let privKey;
   do {
@@ -192,8 +194,34 @@ const generateKeyPair = (data) => {
   const _privKey = ArrayToStringHex(buffer);
   const _pubKey = ArrayToStringHex(pubKey);
   return { privKey, pubKey, _privKey, _pubKey, hash };
-}
+};
 
 async function didUserExist(_pubKey) {
-  return await axios.get(`${baseURL}/address/${_pubKey}`).then((result) => result.data)
+  return await axios
+    .get(`${baseURL}/address/${_pubKey}`)
+    .then((result) => result.data);
 }
+
+const JSONToUint8Array = (data) => {
+  var buffer = crypto
+    .createHash("sha256")
+    .update(JSON.stringify(data), "utf8")
+    .digest();
+  const hash = new Uint8Array(
+    buffer.buffer,
+    buffer.byteOffset,
+    buffer.length / Uint8Array.BYTES_PER_ELEMENT
+  );
+  return hash;
+};
+
+const ParseHexString = (str) => {
+  var result = [];
+  while (str.length >= 2) {
+    result.push(parseInt(str.substring(0, 2), 16));
+
+    str = str.substring(2, str.length);
+  }
+
+  return result;
+};

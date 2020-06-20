@@ -1,6 +1,6 @@
 <div class="container-fluid rounded-sm border border-light shadow bg-white">
     <div class="px-5 py-5">
-        <h2 class="mb-5 text-center" id="nameOfElection">Cuộc bầu cử</h2>
+        <h2 class="mb-5 text-center" id="nameOfElection">{{elections.name}}</h2>
         <div class="container">
             <div class="col justify-content-md-center">
                 <form>
@@ -33,6 +33,11 @@
                                 <input type="password" class="form-control" id="privKey" required>
                             </div>
 
+                            <div class="form-group">
+                                <label for="idlock">ID</label>
+                                <input type="password" class="form-control" id="idlock" required>
+                            </div>
+
                             <label for="nominees">Bầu ứng cử viên:</label>
                             <select id="nominees" class="custom-select custom-select-sm">
                                 {{#each elections.nominees}}
@@ -56,15 +61,16 @@
         $('button[type=submit]').click(function () {
             const data = {
                 year: $("#year").val(),
-                name: $("#nameOfElection").val(),
-                nominees: $("#nominees").val(),
+                name: $("#nameOfElection").text(),
+                nominees: $("#nominees option:selected").text(),
                 privKey: $("#privKey").val(),
+                lock: $("idlock").val(),
             }
             alert(JSON.stringify(data, null, 4));
 
             // POST form
             $.ajax({
-                url: '/vote',
+                url: '/votelist/${:id}',
                 type: 'POST',
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',

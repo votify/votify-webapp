@@ -99,14 +99,13 @@ router.get("/votelist", function (req, res, next) {
         elections: data,
       });
     })
-    .catch((error) => {
-      console.error("Error:", error);
-      next(error);
+    .catch((err) => {
+      console.log('err', err)
+      return res.status(400).json(err);
     });
 });
 
-router.get("/votelist/:id", function (req, res, next) {
-  const id = req.params['id'];
+router.get("/votelist/:id", function (req, res) {
   fetch("https://blockchain-node-01.herokuapp.com/elections", {
     headers: {
       "Content-Type": "application/json",
@@ -115,11 +114,6 @@ router.get("/votelist/:id", function (req, res, next) {
   })
     .then((response) => response.json())
     .then((data) => {
-      for (let index = 0; index < data.length; index++) {
-        data[index].deadline = moment(data[index].deadline).format(
-          "MMM Do, YYYY"
-        );
-      }
       console.log('data', data)
       res.render("vote", {
         title: "Election List",
@@ -127,19 +121,16 @@ router.get("/votelist/:id", function (req, res, next) {
         elections: data[0],
       });
     })
-    .catch((error) => {
-      console.error("Error:", error);
-      next(error);
+    .catch((err) => {
+      console.log('err', err)
+      return res.status(400).json(err);
     });
 });
 
 router.post("/votelist/:id", async (req, res) => {
-  const id = req.params['id'];
-  res.render("vote", { layout: "layout" });
-
   const data = { ...req.body };
 
-  const { year, name, nominee, privKey } = data;
+  const { year, name, nominees, privKey, lock } = data;
 
   const convertedPrivKey = Buffer.from(privKey, 'utf8');
 
@@ -147,24 +138,23 @@ router.post("/votelist/:id", async (req, res) => {
 
   const _data = {
     type: "vote",
-    data: { year: year, name: name, nominee: nominee },
+    data: { year: year, name: name, nominee: nominees },
     signature: [...signatureObj],
+    lock: lock,
   };
+  console.log(_data);
 
-  const url = "https://blockchain-node-01.herokuapp.com/";
+  const url = `${baseURL}/action`;
   await axios
     .post(url, _data)
     .then((result) => {
-      console.log("result", result);
-      res.status(200).json({ success: true }, result, convertedPrivKey);
+      console.log("result", result.data);
+      res.status(200).json({ success: true }, result);
     })
     .catch((err) => {
-      res.status(err.response.status).json(err.response.statusText);
+      console.log('err', err)
+      return res.status(400).json(err);
     });
-
-  console.log(hash);
-  res.status(200).json({ msg: "success" });
-
 });
 
 module.exports = router;

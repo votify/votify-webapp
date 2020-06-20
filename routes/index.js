@@ -127,7 +127,8 @@ router.get("/votelist/:id", function (req, res) {
     });
 });
 
-router.post("/votelist/:id", async (req, res) => {
+router.post('/votelist/:id', async (req, res) => {
+
   const data = { ...req.body };
 
   const { year, name, nominees, privKey, lock } = data;

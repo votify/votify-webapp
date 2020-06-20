@@ -149,7 +149,11 @@ router.post("/votelist/", async (req, res) => {
     .post(url, _data)
     .then((result) => {
       console.log("result", result.data);
-      res.status(200).json({ success: true }, result);
+      if (result.status === "valid") {
+        res.json({ success: true, id: result.id });
+      } else {
+        res.json({ success: false });
+      }
     })
     .catch((err) => {
       console.log("err", err);

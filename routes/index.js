@@ -148,11 +148,48 @@ router.post("/votelist/", async (req, res) => {
   await axios
     .post(url, _data)
     .then((result) => {
+      console.log("result: ", result.data);
+      return res.status(200).json({ ...result.data });
+      /*
       console.log("result", result.data);
       if (result.status === "valid") {
         res.json({ success: true, id: result.id });
       } else {
         res.json({ success: false });
+      }
+      */
+    })
+    .catch((err) => {
+      console.log("err", err);
+      return res.status(400).json(err);
+    });
+});
+
+router.get("/count/:id", function (req, res) {
+  fetch(`https://blockchain-node-01.herokuapp.com/count/:id`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log("data", data.result);
+      if (data.result == false)
+      {
+        res.render("voteresult", {
+          layout: "layout",
+          data: data.result,
+        });
+        console.log(data);
+      }
+      else
+      {
+        res.render("voteresult", {
+          layout: "layout",
+          data: data.result,
+        });
+        console.log(data);
       }
     })
     .catch((err) => {

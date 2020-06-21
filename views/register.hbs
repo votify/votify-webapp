@@ -63,20 +63,16 @@
 
 <script>
     $(function () {
-
         // check form validation
         var options, birthmonth, birthday, birthyear;
         for (i = 1, options = `<option  value=0>Tháng</option>`; i < 13; i++) {
             options += `<option value=${i}>${i}</option>`;
         }
         $('#birthmonth').html(options);
-
-
         for (i = 1, options = `<option value=0>Ngày</option>`; i < 32; i++) {
             options += `<option value=${i}>${i}</option>`;
         }
         $('#birthday').html(options);
-
         for (i = 1920, options = `<option value=0>Năm</option>`; i < 2120; i++) {
             options += `<option value=${i}>${i}</option>`;
         }
@@ -102,11 +98,8 @@
                 </div>
             </div>
         </div>`
-
-
         $('button[type=submit]').click(function (e) {
             e.preventDefault();
-
             birthday = $('#birthday option:selected').text();
             birthmonth = $('#birthmonth option:selected').text();
             birthyear = $('#birthyear option:selected').text();
@@ -118,8 +111,6 @@
                 birthyear
             }
             alert(JSON.stringify(data, null, 4));
-
-
             // POST form
             $.ajax({
                 url: '/register',
@@ -153,13 +144,9 @@
                     $("#modal_place").html(modal('Thông báo', content, continue_button));
                     $("#modal").modal('show');
                     console.log(JSON.stringify(err, null, 4));
-
                 }
             })
 
         })
-
-
     })
-
 </script>

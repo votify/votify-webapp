@@ -8,8 +8,8 @@
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">Các ứng cử viên:</h5>
-                        {{#each data.name}}
-                            <p class="card-text">- {{this.name}}: {{this.count}} phiếu bầu</p>
+                        {{#each data}}
+                        <p class="card-text">- {{this.name}}: {{this.count}} phiếu bầu</p>
                         {{/each}}
                     </div>
                 </div>

@@ -60,7 +60,7 @@
 
 <script>
     $(function () {
-        const modal = (title, content, continue_button) =>
+        const modal = (title, content, onClose, result) =>
             `<div class="modal fade" tabindex="-1" role="dialog" id="modal">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -72,13 +72,15 @@
                     </div>
                     <div class="modal-body">
                         <p>${content}</p>
+                        ${result}
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal" onClick="window.location.reload()">Đóng</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" onClick="${onClose}">Đóng</button>
                     </div>
                 </div>
             </div>
         </div>`
+
 
         $('button[type=submit]').click(function (e) {
             e.preventDefault();
@@ -101,16 +103,25 @@
                 timeout: 0,
                 data: JSON.stringify(_data),
                 success: function (data) {
-                    const title = `Thông tin bầu cử`;
-                    const content = `Cử tri đã bầu cho ${_data.nominees} <hr>`;
-                    $("#modal_place").html(modal(title, content));
-                    $("#modal").modal('show');
-                    console.log(JSON.stringify(data, null, 4));
+                    if (data.status === "valid") {
+                        const title = `Thông tin bầu cử`;
+                        const content = `Cử tri đã bầu cho ${_data.nominees} <hr>`;
+                        $("#modal_place").html(modal(title, content, "window.location.replace('/')", `<div><b>ID:</b> <code>${data.id}</code></div>`));
+                        $("#modal").modal({ backdrop: "static", keyboard: false });
+                        $("#modal").modal("show");
+                        console.log(JSON.stringify(data, null, 4));
+                    } else {
+                        const title = `Lỗi`;
+                        const content = `Khóa bí mật hoặc ID sai`;
+                        $("#modal_place").html(modal(title, content, "window.location.reload()"));
+                        $("#modal").modal('show');
+                        console.log(JSON.stringify(data, null, 4));
+                    }
                 },
                 error: function (err) {
                     const title = `Lỗi`;
                     const content = `Khóa bí mật hoặc ID sai`;
-                    $("#modal_place").html(modal(title, content));
+                    $("#modal_place").html(modal(title, content, "window.location.reload()"));
                     $("#modal").modal('show');
                     console.log(JSON.stringify(err, null, 4));
                 }

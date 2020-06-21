@@ -16,7 +16,7 @@ router.get("/", function (req, res, next) {
 });
 
 router.get("/register", (req, res) => {
-  res.render("register", { layout: "layout" });
+  res.render("register", { layout: "layout", title: "Register" });
 });
 
 router.post("/register", async (req, res) => {
@@ -60,7 +60,7 @@ router.post("/register", async (req, res) => {
 });
 
 router.get("/check-register", (req, res) => {
-  res.render("check-register", { layout: "layout" });
+  res.render("check-register", { layout: "layout", title: "Check Register" });
 });
 
 router.post("/check-register", async (req, res) => {
@@ -78,7 +78,7 @@ router.post("/check-register", async (req, res) => {
 });
 
 router.get("/votelist", function (req, res, next) {
-  fetch("https://blockchain-node-01.herokuapp.com/elections", {
+  fetch(`${baseURL}/elections`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -104,7 +104,8 @@ router.get("/votelist", function (req, res, next) {
 });
 
 router.get("/votelist/:id", function (req, res) {
-  fetch("https://blockchain-node-01.herokuapp.com/elections", {
+  let id = req.params.id;
+  fetch(`${baseURL}/elections/${id}`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -114,9 +115,9 @@ router.get("/votelist/:id", function (req, res) {
     .then((data) => {
       console.log("data", data);
       res.render("vote", {
-        title: "Election List",
+        title: "Election",
         layout: "layout",
-        elections: data[0],
+        elections: data.result,
       });
     })
     .catch((err) => {
@@ -150,14 +151,6 @@ router.post("/votelist/", async (req, res) => {
     .then((result) => {
       console.log("result: ", result.data);
       return res.status(200).json({ ...result.data });
-      /*
-      console.log("result", result.data);
-      if (result.status === "valid") {
-        res.json({ success: true, id: result.id });
-      } else {
-        res.json({ success: false });
-      }
-      */
     })
     .catch((err) => {
       console.log("err", err);
@@ -166,31 +159,98 @@ router.post("/votelist/", async (req, res) => {
 });
 
 router.get("/count/:id", function (req, res) {
-  fetch(`https://blockchain-node-01.herokuapp.com/count/:id`, {
+  let id = req.params.id;
+  fetch(`${baseURL}/count/${id}`, {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
-    })
+  })
     .then((response) => response.json())
     .then((data) => {
       //console.log("data", data.result);
-      if (data.result == false)
-      {
+      if (data.result === false) {
         res.render("voteresult", {
           layout: "layout",
           data: data.result,
+          title: "Vote result",
         });
         console.log(data);
-      }
-      else
-      {
+      } else {
         res.render("voteresult", {
           layout: "layout",
           data: data.result,
+          title: "Vote result",
         });
         console.log(data);
       }
+    })
+    .catch((err) => {
+      console.log("err", err);
+      return res.status(400).json(err);
+    });
+});
+
+router.get("/history/:id", function (req, res) {
+  let id = req.params.id;
+  fetch(`${baseURL}/history/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data === false) {
+        res.render("history", {
+          layout: "layout",
+          history: data,
+          title: "History List",
+        });
+        console.log(data);
+      } else {
+        for (let index = 0; index < data.length; index++) {
+          data[index].time = moment(data[index].time)
+            .local()
+            .format("HH:mm:ss MMM Do, YYYY");
+        }
+        res.render("history", {
+          layout: "layout",
+          history: data,
+          title: "History List",
+        });
+        console.log(data);
+      }
+    })
+    .catch((err) => {
+      console.log("err", err);
+      return res.status(400).json(err);
+    });
+});
+
+router.get("/address", function (req, res) {
+  res.render("findLock", {
+    title: "Find Lock",
+    layout: "layout",
+  });
+});
+
+router.post("/address", function (req, res) {
+  const { priKey } = req.body;
+
+  const pubKey = secp256k1.publicKeyCreate(
+    new Uint8Array(ParseHexString(priKey))
+  );
+  fetch(`${baseURL}/address/${ArrayToStringHex([...pubKey])}`, {
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      res.json(data);
     })
     .catch((err) => {
       console.log("err", err);

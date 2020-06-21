@@ -191,6 +191,18 @@ router.get("/count/:id", function (req, res) {
     });
 });
 
+router.post("/history", function (req, res) {
+  const { id } = req.body;
+  res.redirect(`/history/${id}`);
+});
+
+router.get("/find_history", function (req, res) {
+  res.render("address", {
+    title: "Find History",
+    layout: "layout",
+  });
+});
+
 router.get("/history/:id", function (req, res) {
   let id = req.params.id;
   fetch(`${baseURL}/history/${id}`, {
